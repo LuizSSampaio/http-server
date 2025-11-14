@@ -8,7 +8,7 @@ use http::StatusCode;
 pub mod router;
 
 fn main() {
-    router::Router::new().route("/abc/d/e", router::Method::GET(|| {}));
+    router::Router::new().route("/abc/d/e", router::Method::GET, || {});
 
     let listener = TcpListener::bind("127.0.0.1:4221").unwrap();
 

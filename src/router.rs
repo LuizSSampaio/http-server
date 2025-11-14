@@ -1,8 +1,8 @@
-use std::collections::HashSet;
+use std::collections::HashMap;
 
 #[derive(Debug, Default, Clone)]
 pub struct Router {
-    routes: radix_trie::Trie<String, HashSet<Method>>,
+    routes: radix_trie::Trie<String, HashMap<Method, fn()>>,
 }
 
 impl Router {
@@ -12,18 +12,18 @@ impl Router {
         }
     }
 
-    pub fn route(mut self, path: &str, method: Method) -> Self {
+    pub fn route(mut self, path: &str, method: Method, handler: fn()) -> Self {
         if !path.starts_with("/") {
             panic!("Route path must start with '/'");
         }
 
         match self.routes.get_mut(path) {
             Some(methods) => {
-                methods.insert(method);
+                methods.insert(method, handler);
             }
             None => {
                 self.routes
-                    .insert(path.to_string(), HashSet::from([method]));
+                    .insert(path.to_string(), HashMap::from([(method, handler)]));
             }
         }
 
@@ -31,16 +31,15 @@ impl Router {
     }
 }
 
-//TODO: Fix comparisons results. Find another solution to have only one callback for method
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Method {
-    GET(fn()),
-    HEAD(fn()),
-    OPTIONS(fn()),
-    TRACE(fn()),
-    PUT(fn()),
-    DELETE(fn()),
-    POST(fn()),
-    PATCH(fn()),
-    CONNECT(fn()),
+    GET,
+    HEAD,
+    OPTIONS,
+    TRACE,
+    PUT,
+    DELETE,
+    POST,
+    PATCH,
+    CONNECT,
 }
